@@ -64,7 +64,7 @@ func (s *Server) AnyDead() bool {
 	defer s.mu.Unlock()
 
 	for _, v := range s.clients {
-		if time.Since(v.Timestamp) > v.BeatDelay {
+		if time.Since(v.Timestamp) > v.BeatDelay+5*time.Second { //add 5s for leave client time to send new beat
 			return true
 		}
 	}
