@@ -15,6 +15,7 @@ type Client struct {
 	successCount  int
 	errorCount    int
 	currentStatus Status
+	startOnce     sync.Once
 }
 
 type Thresholds struct {
@@ -55,14 +56,16 @@ func (c *Client) Error() {
 }
 
 func (c *Client) Start() {
-	go func() {
-		ticker := time.NewTicker(c.config.BeatDelay)
-		defer ticker.Stop()
-		for range ticker.C {
+	c.startOnce.Do(func() {
+		go func() {
+			ticker := time.NewTicker(c.config.BeatDelay)
+			defer ticker.Stop()
+			for range ticker.C {
 
-			c.sendBeat()
-		}
-	}()
+				c.sendBeat()
+			}
+		}()
+	})
 }
 
 func (c *Client) updateStatus() {
