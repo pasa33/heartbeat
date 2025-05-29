@@ -126,6 +126,8 @@ func (c *Client) trySendBeat() error {
 		return fmt.Errorf("response code: %d", resp.StatusCode)
 	}
 
+	c.errorCount = 0
+	c.successCount = 0
 	return nil
 }
 
