@@ -3,6 +3,7 @@ package heartbeat
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 type Server struct {
@@ -46,6 +47,18 @@ func (s *Server) AnyError() bool {
 	return false
 }
 
+func (s *Server) AnyDead() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, v := range s.clients {
+		if time.Since(v.Timestamp) > v.BeatDelay {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Server) DeleteClient(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -53,7 +66,7 @@ func (s *Server) DeleteClient(id string) {
 	delete(s.clients, id)
 }
 
-func (s *Server) ResetAll(id string) {
+func (s *Server) ResetAll() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
