@@ -69,7 +69,7 @@ func (c *Client) updateStatus() {
 
 	c.mu.Lock()
 	newStatus := c.calcStatus()
-	isStatusChange := newStatus == c.currentStatus
+	isStatusChange := newStatus != c.currentStatus
 	c.currentStatus = newStatus
 	c.mu.Unlock()
 
@@ -110,6 +110,7 @@ func (c *Client) trySendBeat() error {
 		SuccessCount: c.successCount,
 		ErrorCount:   c.errorCount,
 		Timestamp:    time.Now(),
+		BeatDelay:    c.config.BeatDelay,
 	}
 
 	body, _ := json.Marshal(payload)

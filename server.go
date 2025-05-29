@@ -35,7 +35,7 @@ func (s *Server) GetClientStatus(id string) (Status, error) {
 	return "", fmt.Errorf("client with id [%s] not found", id)
 }
 
-func (s *Server) GetAllClientStatus(id string) []BeatPayload {
+func (s *Server) GetAllClientStatus() []BeatPayload {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
