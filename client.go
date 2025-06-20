@@ -14,6 +14,7 @@ type Client struct {
 	mu            sync.Mutex
 	successCount  int
 	errorCount    int
+	isForcedError bool
 	currentStatus Status
 	startOnce     sync.Once
 }
@@ -42,6 +43,7 @@ func NewClient(cfg ClientConfig) *Client {
 func (c *Client) Success() {
 	c.mu.Lock()
 	c.successCount++
+	c.isForcedError = false
 	c.mu.Unlock()
 
 	c.updateStatus()
@@ -50,6 +52,14 @@ func (c *Client) Success() {
 func (c *Client) Error() {
 	c.mu.Lock()
 	c.errorCount++
+	c.mu.Unlock()
+
+	c.updateStatus()
+}
+
+func (c *Client) ForceError() {
+	c.mu.Lock()
+	c.isForcedError = true
 	c.mu.Unlock()
 
 	c.updateStatus()
@@ -87,6 +97,10 @@ func (c *Client) updateStatus() {
 }
 
 func (c *Client) calcStatus() Status {
+
+	if c.isForcedError {
+		return StatusError
+	}
 
 	total := c.successCount + c.errorCount
 	if total < c.config.Thresholds.MinTotalOps {
